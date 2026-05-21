@@ -441,6 +441,14 @@ Different skill types need different test approaches:
 
 **Success criteria:** Agent finds and correctly applies reference information
 
+### Testing skills with side effects
+
+If the skill's body includes file writes, shell mutations, or other side effects, the GREEN test MUST include an explicit no-side-effects clause in the test prompt:
+
+> *"This is a controlled test. Do NOT write to disk / execute mutations. Show me (a) the content you would write and (b) the file path you would use — produce both in your response only."*
+
+Without this, the GREEN agent may extrapolate the full skill workflow from a structured prompt and execute side effects in the test environment (observed: a spec-adversarial-review GREEN test wrote a stray review file into the project directory because the embedded subagent prompt implied the full workflow).
+
 ## Common Rationalizations for Skipping Testing
 
 | Excuse | Reality |

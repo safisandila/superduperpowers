@@ -129,6 +129,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
+**4. Source consistency:** For every code snippet in the plan that references EXISTING files (form Values types, schema field names, function signatures, method names), grep the source file to confirm exact names. Do not write code references from memory — the codebase may use `fullName` while you wrote `name`. Fix mismatches inline.
+
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
 ## Execution Handoff
@@ -150,3 +152,13 @@ After saving the plan, offer execution choice:
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
 - Batch execution with checkpoints for review
+
+## Transient Doc Handling
+
+If the plan was generated from working docs (brainstorms, sweep notes, scratch scope docs), the plan's FINAL task must include an archive step:
+
+- Move (don't delete) the source docs to `docs/superpowers/archive/<phase-or-topic>/`
+- Verify via `ls` that the archive landed
+- Commit
+
+Never `git rm` working docs that informed the plan — they have referential value for future phases and for anyone tracing why the plan looks the way it does.

@@ -86,20 +86,51 @@ digraph process {
 }
 ```
 
-## Model Selection
+## Subagent Selection (Model + Context)
 
-Use the least powerful model that can handle each role to conserve cost and increase speed.
+Choose subagent model and context with **quality as the primary axis, cost as the secondary lever.** Reviewers are non-negotiable.
 
-**Mechanical implementation tasks** (isolated functions, clear specs, 1-2 files): use a fast, cheap model. Most implementation tasks are mechanical when the plan is well-specified.
+### Reviewers: always the most capable model
 
-**Integration and judgment tasks** (multi-file coordination, pattern matching, debugging): use a standard model.
+The spec compliance reviewer and the code quality reviewer **always** use the most capable model available. No downgrades for cost, speed, or "this task looks small." Reviewer cost is small (they read a diff, they don't generate the solution), but the value of catching a defect at the gate is high — and a missed defect propagates.
 
-**Architecture, design, and review tasks**: use the most capable available model.
+This rule does not bend. If you find yourself rationalizing a weaker reviewer ("it's just a typo fix", "it's just a config change"), the answer is still the most capable model.
 
-**Task complexity signals:**
-- Touches 1-2 files with a complete spec → cheap model
-- Touches multiple files with integration concerns → standard model
-- Requires design judgment or broad codebase understanding → most capable model
+### Implementers: match model to task complexity
+
+Implementation generates more tokens than review, so this is where the cost dial actually matters. Start at the highest tier and downgrade only when the task is unambiguously mechanical.
+
+**Architecture, design, judgment-heavy tasks** (new subsystems, multi-file design decisions, anything requiring "which approach is right?") → most capable model.
+
+**Integration tasks** (multi-file coordination, following existing patterns across files, debugging) → standard model.
+
+**Mechanical tasks** (isolated function, clear spec, 1-2 files, no design choices) → fast/cheap model is fine.
+
+**When in doubt, go up a tier.** The cost of a re-dispatch after BLOCKED is higher than the cost of starting with a stronger model.
+
+### Combining spec + code quality review (small-task exception)
+
+By default, dispatch spec compliance and code quality reviews as **separate** subagents in that order. The two-stage gate prevents quality review on code that's about to be rewritten for spec drift, and the role separation produces sharper signal.
+
+**Exception — small tasks may combine both into one reviewer dispatch when ALL of the following hold:**
+- Single-file change, AND
+- Net change under ~150 LOC, AND
+- No new abstractions or external dependencies introduced, AND
+- No security, auth, payments, or data-integrity surface touched
+
+In these cases the spec drift / quality drift surface is small enough that one careful reviewer (still using the most capable model) can do both passes in sequence inside a single dispatch. The dispatched prompt MUST explicitly instruct the reviewer to do spec compliance FIRST, halt and report if spec fails, and only proceed to quality if spec passes.
+
+**Outside these conditions, always separate.** When in doubt, separate.
+
+### Context window management
+
+Your context as the orchestrator is a budget. Spending it on work the subagents can do for you is the most common failure mode of this skill.
+
+- **Read the plan ONCE.** At session start, extract every task's full text and surrounding context into TodoWrite. After that, never re-read the plan file — pull task text from your extracted notes.
+- **Subagents read; you route.** Do not read the source files the implementer is changing. Do not read the diff the reviewer is reviewing. Your job is to construct subagent prompts and read their reports. The moment you start reading their code into your context, you've defeated the purpose.
+- **Retain only forward-looking state per task.** From each subagent's report, keep: status code, commit SHA(s), files changed, any concerns to carry forward. Drop the verbose prose once you've used it to construct the next dispatch.
+- **TodoWrite is the source of truth, not your context.** If you forget something between tasks, look it up there — don't try to hold it in working memory.
+- **Target ~30% context headroom.** If you're consistently above 70% utilization between tasks, you're carrying too much state. Compress your notes or rely on TodoWrite more aggressively.
 
 ## Handling Implementer Status
 
