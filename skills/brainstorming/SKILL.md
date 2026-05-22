@@ -17,6 +17,14 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 
 Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
 
+## When NOT to Use
+
+**Future-intent statements ≠ design requests.** Distinguish between the user sharing intent for later ("I might want to build a GUI later," "eventually this folder will need X," "for now I just want Y") and the user asking to design something now ("let's design X," "how should this look?"). The skill applies to the second; for the first, acknowledge the intent in one line, ask what concrete work they want NOW, and skip the brainstorming ceremony entirely.
+
+Trigger words that signal future-intent (not a request): "later," "eventually," "for now," "I might want to," "down the road," "at some point."
+
+This is distinct from the Anti-Pattern above. The Anti-Pattern says don't skip brainstorming for *simple* projects the user is actively requesting. This section says don't invoke brainstorming for projects the user is NOT yet requesting.
+
 ## Checklist
 
 You MUST create a task for each of these items and complete them in order:
